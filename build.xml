@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright 2010 Giles Burgess
+	
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+	
+	     http://www.apache.org/licenses/LICENSE-2.0
+	
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+-->
+<project basedir="." default="build" name="ant">
+	
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+	
+	<property name="ant-version" value="1.7.1"/>
+	<property name="antsy-version" value="0.9"/>
+	
+	<property name="src" value="src/main"/>
+	<property name="src.java" value="${src}/java"/>
+	
+	<property name="target" value="target/${ant-version}"/>
+	<property name="target.ant" value="${target}/tmp"/>
+	<property name="target.ant.src" value="${target.ant}/src"/>
+	<property name="target.ant.bin" value="${target.ant}/bin"/>
+	<property name="target.java" value="${target}/main/java"/>
+	<property name="target.class" value="${target}/main/class"/>
+	<property name="target.jar" value="${target}"/>
+	<property name="target.docs" value="${target}/main/docs"/>
+	
+	<target name="ant-src">
+		<property name="src.zip" value="apache-ant-${ant-version}-src.zip"/>
+		<mkdir dir="${target.ant.src}"/>
+		<get src="http://archive.apache.org/dist/ant/source/${src.zip}"
+			dest="${target.ant}/${src.zip}"
+			usetimestamp="true"/>
+		<unzip src="${target.ant}/${src.zip}"
+			dest="${target.ant.src}"
+			overwrite="false">
+			<patternset>
+				<include name="**/src/main/**/*.java"/>
+			</patternset>
+		</unzip>
+	</target>
+
+	<target name="ant-bin">
+		<property name="bin.zip" value="apache-ant-${ant-version}-bin.zip"/>
+		<mkdir dir="${target.ant.bin}"/>
+		<get src="http://archive.apache.org/dist/ant/binaries/${bin.zip}"
+			dest="${target.ant}/${bin.zip}"
+			usetimestamp="true"/>
+		<copy todir="${target.ant.bin}" flatten="true">
+			<zipfileset src="${target.ant}/${bin.zip}">
+				<patternset>
+					<include name="**/ant.jar"/>
+				</patternset>
+			</zipfileset>
+		</copy>
+	</target>
+	
+	<target name="ant-facade-java" depends="ant-src,antsy-classes">
+		<mkdir dir="${target.java}"/>
+		<javadoc
+			destdir="${target.java}"
+			packagenames="org.apache.tools.ant.taskdefs"
+			sourcepath="${target.ant.src}/apache-ant-${ant-version}/src/main"
+			defaultexcludes="yes">
+
+			<doclet name="org.copalis.antsy.AntDoclet" 
+				path="${target.class}">
+				<param name="-d" value="${target.java}"/>
+				<param name="-catalog" value="org.copalis.antsy.Tasks"/>
+				<param name="-outPackage" value="org.copalis.antsy"/>
+			</doclet>
+			
+			<classpath>
+				<fileset dir="${target.ant.bin}">
+					<include name="*.jar"/>
+				</fileset>
+			</classpath>
+		</javadoc>
+	</target>
+	
+	<target name="ant-facade-class" depends="ant-facade-java,ant-bin">
+		<echo>Using jar: ${ant.core.lib}</echo>
+		<echo>Using jar: ${target.ant.bin}/ant.jar</echo>
+    	<mkdir dir="${target.class}"/>
+		<javac destdir="${target.class}" source="1.5" target="1.5" includeantruntime="false">
+			<src>
+				<dirset dir="${target.java}"/>
+			</src>
+			<classpath>
+				<fileset dir="${target.ant.bin}">
+					<include name="*.jar"/>
+				</fileset>
+				<dirset dir="${target.ant.src}/apache-ant-${ant-version}/src/main/"/>
+				<dirset dir="${target.java}"/>
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="dist-dir">
+    	<mkdir dir="${target.jar}"/>
+	</target>
+	
+	<target name="ant-facade-jar" depends="dist-dir,ant-facade-class">
+		<jar destfile="${target.jar}/org.copalis.antsy-${antsy-version}.ant-${ant-version}.jar">
+			<fileset dir="${target.java}"/>
+			<fileset dir="${target.class}"/>
+		</jar>
+	</target>
+	
+	<target name="ant-jar" depends="dist-dir,ant-bin">
+		<copy file="${target.ant.bin}/ant.jar" tofile="${target.jar}/ant-${ant-version}.jar" />
+	</target>
+	
+	<target name="clean">
+        <delete dir="target"/>
+    </target>
+	
+    <target name="cleanall" depends="clean"/>
+	
+    <target name="build" depends="ant-jar,ant-facade-jar,docs"/>
+	
+    <target name="antsy-classes" depends="ant-bin">
+    	<mkdir dir="${target.class}"/>
+        <javac 
+        	debug="true"
+        	debuglevel="${debuglevel}"
+        	destdir="${target.class}"
+        	source="1.5" target="1.5"
+        	includeantruntime="false">
+            <src path="${src.java}"/>
+            <classpath>
+				<fileset dir="${target.ant.bin}">
+					<include name="*.jar"/>
+				</fileset>
+        	</classpath>
+        </javac>
+    </target>
+	
+	<target name="docs" depends="ant-bin,ant-facade-java">
+		<mkdir dir="${target.docs}"/>
+		<javadoc destdir="${target.docs}" verbose="false">
+			<sourcefiles>
+				<fileset dir="${src.java}"/>
+				<fileset dir="${target.java}"/>
+			</sourcefiles>
+			<classpath>
+				<fileset dir="${target.ant.bin}">
+					<include name="*.jar"/>
+				</fileset>
+			</classpath>
+		</javadoc>
+	</target>
+	
+	<target name="diagnostics">
+		<echo>Ant version: ${ant.version}</echo>
+		<echo>lib: ${ant.core.lib}</echo>
+		<echo>dir: ${ant.library.dir}</echo>
+	</target>
+</project>
