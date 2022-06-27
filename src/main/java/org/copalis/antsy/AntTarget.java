@@ -25,12 +25,12 @@ import org.apache.tools.ant.Target;
  */
 public abstract class AntTarget extends AntRef<Target> {
 
-	public AntTarget(Target ref) {
-		super(ref);
-	}
+    public AntTarget(Target ref) {
+        super(ref);
+    }
 
-	/**
-	 * Signals that execution of the target has finished
-	 */
-	public abstract void finished();
+    /**
+     * Signals that execution of the target has finished
+     */
+    public abstract void finished();
 }

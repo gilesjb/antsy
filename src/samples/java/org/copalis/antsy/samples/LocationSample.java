@@ -24,22 +24,22 @@ import org.copalis.antsy.taskdefs.Javac;
  *
  */
 public class LocationSample implements Tasks {
-	
-	public static void main(String... args) {
-		AntProject ant = new AntProject().startBuild();
-		
-		try {
-			Javac task = ant.task(javac);
-			task.inferLocation(true);
-			task.run();
-		} catch (RuntimeException e) {
-			ant.buildFinished(e);
-		}
-		
-		try {
-			ant.task(javac).run();
-		} catch (RuntimeException e) {
-			ant.buildFinished(e);
-		}
-	}
+    
+    public static void main(String... args) {
+        AntProject ant = new AntProject().startBuild();
+        
+        try {
+            Javac task = ant.task(javac);
+            task.inferLocation(true);
+            task.run();
+        } catch (RuntimeException e) {
+            ant.buildFinished(e);
+        }
+        
+        try {
+            ant.task(javac).run();
+        } catch (RuntimeException e) {
+            ant.buildFinished(e);
+        }
+    }
 }

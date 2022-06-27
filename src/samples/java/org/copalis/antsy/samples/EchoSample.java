@@ -25,13 +25,13 @@ import org.copalis.antsy.Tasks;
  */
 public class EchoSample implements Tasks {
 
-	public static void main(String... args) {
-		AntProject ant = new AntProject().startBuild();
-		AntTarget target = ant.startTarget("Main");
-		
-		ant.task(echo).message("Hello").addText(" World!").run();
-		
-		target.finished();
-		ant.buildFinished();
-	}
+    public static void main(String... args) {
+        AntProject ant = new AntProject().startBuild();
+        AntTarget target = ant.startTarget("Main");
+        
+        ant.task(echo).message("Hello").addText(" World!").run();
+        
+        target.finished();
+        ant.buildFinished();
+    }
 }

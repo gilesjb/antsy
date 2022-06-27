@@ -31,7 +31,7 @@ public class Javadoc implements Tasks {
         
         ant.task(mkdir).dir(docs).run();
         ant.task(javadoc)
-        	.destdir(docs).verbose(false)
+            .destdir(docs).verbose(false)
             .beginFileset()
                 .dir(src).end()
             .run();

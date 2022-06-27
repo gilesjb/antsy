@@ -23,20 +23,20 @@ package org.copalis.antsy;
  */
 public abstract class AntRef<T> {
 
-	/**
-	 * The wrapped object
-	 */
-	private final T ref;
-	
-	protected AntRef(T ref) {
-		this.ref = ref;
-	}
-	
-	/**
-	 * Gets the wrapped object
-	 * @return contained Ant object
-	 */
-	public final T is() {
-		return ref;
-	}
+    /**
+     * The wrapped object
+     */
+    private final T ref;
+    
+    protected AntRef(T ref) {
+        this.ref = ref;
+    }
+    
+    /**
+     * Gets the wrapped object
+     * @return contained Ant object
+     */
+    public final T is() {
+        return ref;
+    }
 }

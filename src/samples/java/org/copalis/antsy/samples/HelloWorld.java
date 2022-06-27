@@ -23,7 +23,7 @@ import org.copalis.antsy.Tasks;
  *
  */
 public class HelloWorld {
-	public static void main(String... args) {
-		new AntProject().task(Tasks.echo).message("Hello, World!").run();
-	}
+    public static void main(String... args) {
+        new AntProject().task(Tasks.echo).message("Hello, World!").run();
+    }
 }

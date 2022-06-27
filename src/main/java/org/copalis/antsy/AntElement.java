@@ -26,33 +26,33 @@ import org.apache.tools.ant.Task;
  * @param <P> the type of the parent object
  */
 public abstract class AntElement<T, P> extends AntRef<T> {
-	private P parent;
-	
-	@SuppressWarnings("unchecked")
-	protected AntElement(T element, P parent) {
-		super(element);
-		if (element instanceof ProjectComponent) {
-			ProjectComponent comp = (ProjectComponent) element;
-			if (parent instanceof AntTask) {
-				comp.setProject(((AntTask<Task>) parent).is().getProject());
-			} else if (parent instanceof ProjectComponent) {
-				comp.setProject(((ProjectComponent) parent).getProject());
-			}
-		}
-		this.parent = parent;
-	}
-	
-	/**
-	 * Ends this element and returns the parent.
-	 * The method should only be called once on any element.
-	 * 
-	 * @return the enclosing parent object
-	 */
-	public P end() {
-		try {
-			return parent;
-		} finally {
-			parent = null;
-		}
-	}
+    private P parent;
+    
+    @SuppressWarnings("unchecked")
+    protected AntElement(T element, P parent) {
+        super(element);
+        if (element instanceof ProjectComponent) {
+            ProjectComponent comp = (ProjectComponent) element;
+            if (parent instanceof AntTask) {
+                comp.setProject(((AntTask<Task>) parent).is().getProject());
+            } else if (parent instanceof ProjectComponent) {
+                comp.setProject(((ProjectComponent) parent).getProject());
+            }
+        }
+        this.parent = parent;
+    }
+    
+    /**
+     * Ends this element and returns the parent.
+     * The method should only be called once on any element.
+     * 
+     * @return the enclosing parent object
+     */
+    public P end() {
+        try {
+            return parent;
+        } finally {
+            parent = null;
+        }
+    }
 }

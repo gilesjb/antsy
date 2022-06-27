@@ -34,98 +34,98 @@ import org.apache.tools.ant.Task;
  * @author gilesjb
  */
 public class AntProject {
-	
-	private final Project project;
-	private final BuildLogger logger;
-	
-	public AntProject() {
-		this(new Project(), new DefaultLogger());
-	}
+    
+    private final Project project;
+    private final BuildLogger logger;
+    
+    public AntProject() {
+        this(new Project(), new DefaultLogger());
+    }
 
-	public AntProject(Project project, BuildLogger logger) {
-		this.project = project;
-		this.logger = logger;
+    public AntProject(Project project, BuildLogger logger) {
+        this.project = project;
+        this.logger = logger;
 
-		logger.setOutputPrintStream(System.out);
-		logger.setErrorPrintStream(System.err);
-		logger.setMessageOutputLevel(Project.MSG_INFO);
-		
-		project.setBaseDir(new File("."));
-		project.addBuildListener(logger);
-	}
-	
-	public AntProject setStreams() {
-		System.setIn(new DemuxInputStream(project));
-		System.setOut(new PrintStream(new DemuxOutputStream(project, false)));
-		System.setErr(new PrintStream(new DemuxOutputStream(project, true)));
-		return this;
-	}
-	
-	/**
-	 * Gets the underlying Ant Project
-	 * @return a {@link org.apache.tools.ant.Project Project}
-	 */
-	public Project project() {
-		return project;
-	}
-	
-	/**
-	 * Starts a new target, returning an object 
-	 * @param name the target name
-	 * @return a new {@link org.apache.tools.ant.Target Target} object
-	 */
-	public AntTarget startTarget(String name) {
-		final Target current = new Target();
-		current.setProject(project);
-		current.setName(name);
-		logger.targetStarted(new BuildEvent(current));
-		return new AntTarget(current) {
-			public void finished() {
-				logger.targetFinished(new BuildEvent(current));
-			}
-		};
-	}
+        logger.setOutputPrintStream(System.out);
+        logger.setErrorPrintStream(System.err);
+        logger.setMessageOutputLevel(Project.MSG_INFO);
+        
+        project.setBaseDir(new File("."));
+        project.addBuildListener(logger);
+    }
+    
+    public AntProject setStreams() {
+        System.setIn(new DemuxInputStream(project));
+        System.setOut(new PrintStream(new DemuxOutputStream(project, false)));
+        System.setErr(new PrintStream(new DemuxOutputStream(project, true)));
+        return this;
+    }
+    
+    /**
+     * Gets the underlying Ant Project
+     * @return a {@link org.apache.tools.ant.Project Project}
+     */
+    public Project project() {
+        return project;
+    }
+    
+    /**
+     * Starts a new target, returning an object 
+     * @param name the target name
+     * @return a new {@link org.apache.tools.ant.Target Target} object
+     */
+    public AntTarget startTarget(String name) {
+        final Target current = new Target();
+        current.setProject(project);
+        current.setName(name);
+        logger.targetStarted(new BuildEvent(current));
+        return new AntTarget(current) {
+            public void finished() {
+                logger.targetFinished(new BuildEvent(current));
+            }
+        };
+    }
 
-	/**
-	 * Signals that the build has started
-	 */
-	public AntProject startBuild() {
-		project.fireBuildStarted();
-		return this;
-	}
+    /**
+     * Signals that the build has started
+     */
+    public AntProject startBuild() {
+        project.fireBuildStarted();
+        return this;
+    }
 
-	/**
-	 * Signals that the build has completed successfully
-	 */
-	public void buildFinished() {
-		project.fireBuildFinished(null);
-	}
-	
-	/**
-	 * Signals that the build has failed
-	 * @param message a description of the failure
-	 * @param cause the exception that caused the build failure
-	 */
-	public void buildFinished(String message, Throwable cause) {
-		project.fireBuildFinished(new BuildException(message, cause));
-	}
-	
-	/**
-	 * Signals that the build has failed
-	 * @param cause the exception that caused the build failure
-	 */
-	public void buildFinished(Throwable cause) {
-		project.fireBuildFinished(new BuildException(cause));
-	}
-	
-	/**
-	 * Creates a new instance of the specified Ant task facade
-	 * @param <X> the facade type
-	 * @param <Y> the inner Ant task type
-	 * @param type the class object for X
-	 * @return a new instance of X
-	 */
-	public <X extends AntTask<Y>, Y extends Task> X task(Class<X> type) {
-		return AntTask.create(type, project);
-	}
+    /**
+     * Signals that the build has completed successfully
+     */
+    public void buildFinished() {
+        project.fireBuildFinished(null);
+    }
+    
+    /**
+     * Signals that the build has failed
+     * @param message a description of the failure
+     * @param cause the exception that caused the build failure
+     */
+    public void buildFinished(String message, Throwable cause) {
+        project.fireBuildFinished(new BuildException(message, cause));
+    }
+    
+    /**
+     * Signals that the build has failed
+     * @param cause the exception that caused the build failure
+     */
+    public void buildFinished(Throwable cause) {
+        project.fireBuildFinished(new BuildException(cause));
+    }
+    
+    /**
+     * Creates a new instance of the specified Ant task facade
+     * @param <X> the facade type
+     * @param <Y> the inner Ant task type
+     * @param type the class object for X
+     * @return a new instance of X
+     */
+    public <X extends AntTask<Y>, Y extends Task> X task(Class<X> type) {
+        return AntTask.create(type, project);
+    }
 }
