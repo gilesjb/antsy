@@ -19,14 +19,14 @@
     <property environment="env"/>
     <property name="debuglevel" value="source,lines,vars"/>
 	
-	<property name="ant-version" value="1.7.1"/>
-	<property name="antsy-version" value="0.9"/>
+	<property name="ant-version" value="1.10.12"/>
+	<property name="antsy-version" value="1.0"/>
 	
 	<property name="src" value="src/main"/>
 	<property name="src.java" value="${src}/java"/>
 	
 	<property name="target" value="target/${ant-version}"/>
-	<property name="target.ant" value="${target}/tmp"/>
+	<property name="target.ant" value="${target}/ant-lib"/>
 	<property name="target.ant.src" value="${target.ant}/src"/>
 	<property name="target.ant.bin" value="${target.ant}/bin"/>
 	<property name="target.java" value="${target}/main/java"/>
@@ -67,13 +67,13 @@
 	<target name="ant-facade-java" depends="ant-src,antsy-classes">
 		<mkdir dir="${target.java}"/>
 		<javadoc
+			verbose="false"
 			destdir="${target.java}"
 			packagenames="org.apache.tools.ant.taskdefs"
 			sourcepath="${target.ant.src}/apache-ant-${ant-version}/src/main"
 			defaultexcludes="yes">
 
-			<doclet name="org.copalis.antsy.AntDoclet" 
-				path="${target.class}">
+			<doclet name="org.copalis.antsy.AntDoclet" path="${target.class}">
 				<param name="-d" value="${target.java}"/>
 				<param name="-catalog" value="org.copalis.antsy.Tasks"/>
 				<param name="-outPackage" value="org.copalis.antsy"/>
@@ -91,7 +91,7 @@
 		<echo>Using jar: ${ant.core.lib}</echo>
 		<echo>Using jar: ${target.ant.bin}/ant.jar</echo>
     	<mkdir dir="${target.class}"/>
-		<javac destdir="${target.class}" source="1.5" target="1.5" includeantruntime="false">
+		<javac destdir="${target.class}" source="17" target="17" includeantruntime="false">
 			<src>
 				<dirset dir="${target.java}"/>
 			</src>
@@ -134,13 +134,14 @@
         	debug="true"
         	debuglevel="${debuglevel}"
         	destdir="${target.class}"
-        	source="1.5" target="1.5"
+        	source="17" target="17"
         	includeantruntime="false">
             <src path="${src.java}"/>
             <classpath>
 				<fileset dir="${target.ant.bin}">
 					<include name="*.jar"/>
 				</fileset>
+            	<pathelement location="/Users/giles/.sdkman/candidates/java/7.0.352-zulu/lib/tools.jar"/>
         	</classpath>
         </javac>
     </target>

@@ -17,29 +17,30 @@ package org.copalis.antsy.samples;
 
 import org.copalis.antsy.AntProject;
 import org.copalis.antsy.Tasks;
-import org.copalis.antsy.taskdefs.Javac;
 
 /**
  * @author gilesjb
  *
  */
-public class LocationSample implements Tasks {
-    
+public class LocationExample implements Tasks {
+
     public static void main(String... args) {
         AntProject ant = new AntProject().startBuild();
-        
+
         try {
-            Javac task = ant.task(javac);
-            task.inferLocation(true);
-            task.run();
+            ant.task(javac)
+                .inferLocation(true)
+                .run();
         } catch (RuntimeException e) {
             ant.buildFinished(e);
         }
-        
+
         try {
             ant.task(javac).run();
         } catch (RuntimeException e) {
             ant.buildFinished(e);
         }
+
+        ant.buildFinished();
     }
 }

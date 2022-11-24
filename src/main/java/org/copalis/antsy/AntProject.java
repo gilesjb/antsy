@@ -30,14 +30,14 @@ import org.apache.tools.ant.Task;
 
 /**
  * A facade around an Ant Project and BuildLogger
- * 
+ *
  * @author gilesjb
  */
 public class AntProject {
-    
+
     private final Project project;
     private final BuildLogger logger;
-    
+
     public AntProject() {
         this(new Project(), new DefaultLogger());
     }
@@ -49,18 +49,18 @@ public class AntProject {
         logger.setOutputPrintStream(System.out);
         logger.setErrorPrintStream(System.err);
         logger.setMessageOutputLevel(Project.MSG_INFO);
-        
+
         project.setBaseDir(new File("."));
         project.addBuildListener(logger);
     }
-    
+
     public AntProject setStreams() {
         System.setIn(new DemuxInputStream(project));
         System.setOut(new PrintStream(new DemuxOutputStream(project, false)));
         System.setErr(new PrintStream(new DemuxOutputStream(project, true)));
         return this;
     }
-    
+
     /**
      * Gets the underlying Ant Project
      * @return a {@link org.apache.tools.ant.Project Project}
@@ -68,9 +68,9 @@ public class AntProject {
     public Project project() {
         return project;
     }
-    
+
     /**
-     * Starts a new target, returning an object 
+     * Starts a new target, returning an object
      * @param name the target name
      * @return a new {@link org.apache.tools.ant.Target Target} object
      */
@@ -100,7 +100,7 @@ public class AntProject {
     public void buildFinished() {
         project.fireBuildFinished(null);
     }
-    
+
     /**
      * Signals that the build has failed
      * @param message a description of the failure
@@ -109,7 +109,7 @@ public class AntProject {
     public void buildFinished(String message, Throwable cause) {
         project.fireBuildFinished(new BuildException(message, cause));
     }
-    
+
     /**
      * Signals that the build has failed
      * @param cause the exception that caused the build failure
@@ -117,7 +117,7 @@ public class AntProject {
     public void buildFinished(Throwable cause) {
         project.fireBuildFinished(new BuildException(cause));
     }
-    
+
     /**
      * Creates a new instance of the specified Ant task facade
      * @param <X> the facade type

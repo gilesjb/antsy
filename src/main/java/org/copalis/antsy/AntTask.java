@@ -24,9 +24,9 @@ import org.apache.tools.ant.Task;
  * The task is not executed until the {@link AntTask#ok} method is called
  */
 public abstract class AntTask<T extends Task> extends AntRef<T> {
-    
+
     private boolean inferLocation = false;
-    
+
     /**
      * Creates an instance of an AntTask class
      * @param <X> the AntTask type
@@ -49,11 +49,11 @@ public abstract class AntTask<T extends Task> extends AntRef<T> {
         task.setTaskName(name);
         task.setProject(project);
     }
-    
+
     protected AntTask(String name, Class<T> type, Project project) {
         this(name, createInner(type), project);
     }
-    
+
     private static final <X extends Task> X createInner(Class<X> type) {
         try {
             return type.getDeclaredConstructor().newInstance();
@@ -63,15 +63,17 @@ public abstract class AntTask<T extends Task> extends AntRef<T> {
             throw new RuntimeException(e);
         }
     }
-    
+
     /**
      * Specifies whether automatic location inference should be used.
      * @param value {@literal true} if inference should be used
+     * @return this
      */
-    public void inferLocation(boolean value) {
+    public AntTask<T> inferLocation(boolean value) {
         inferLocation = value;
+        return this;
     }
-    
+
     /**
      * Sets the location of the task that will be reported
      * @param fileName
@@ -90,7 +92,7 @@ public abstract class AntTask<T extends Task> extends AntRef<T> {
      * <p/>
      * If location inference is enabled and no location has been set,
      * the stack trace is examined and the invoking method's source file and line number is used as the task location
-     * 
+     *
      * @see org.apache.tools.ant.Task#perform()
      */
     public final void run() {

@@ -18,22 +18,30 @@ package org.copalis.antsy.samples;
 import java.io.File;
 
 import org.copalis.antsy.AntProject;
+import org.copalis.antsy.AntTarget;
 import org.copalis.antsy.Tasks;
 
-public class Javadoc implements Tasks {
-    
+public class JavadocExample implements Tasks {
+
     static File
         src = new File("src/samples/java"),
         docs = new File("target/samples/docs");
 
     public static void main(String... args) {
         AntProject ant = new AntProject();
-        
+        AntTarget target = ant.startTarget("javadoc");
+
+        ant.startBuild();
         ant.task(mkdir).dir(docs).run();
         ant.task(javadoc)
             .destdir(docs).verbose(false)
-            .beginFileset()
-                .dir(src).end()
+            .withFileset()
+                .dir(src)
+                .includes("**/*.java")
+                .end()
             .run();
+
+        target.finished();
+        ant.buildFinished();
     }
 }
