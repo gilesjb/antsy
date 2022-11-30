@@ -11,44 +11,52 @@ Now you can easily call Ant tasks from Java.
 
 ### Echo task
 
-	public class HelloWorld {
-	    public static void main(String... args) {
-	        new AntProject().task(Tasks.echo).message("Hello, World!").run();
-	    }
-	}
+```java
+public class HelloWorld {
+    public static void main(String... args) {
+        new AntProject().task(Tasks.echo).message("Hello, World!").run();
+    }
+}
+```
 
 displays:
 
-     [echo] Hello, World!
+```
+[echo] Hello, World!
+```
 
 ### Javadoc task
 
-	public class Javadoc implements Tasks {
-	    
-	    static File
-	        src = new File("src/samples/java"),
-	        docs = new File("target/samples/docs");
-	
-	    public static void main(String... args) {
-	        AntProject ant = new AntProject();
-	        
-	        ant.task(mkdir).dir(docs).run();
-	        ant.task(javadoc).destdir(docs).verbose(false)
-	            .addFileset().dir(src).end()
-	            .run();
-	    }
-	}
+```java
+public class Javadoc implements Tasks {
+    
+    static File
+        src = new File("src/samples/java"),
+        docs = new File("target/samples/docs");
+
+    public static void main(String... args) {
+        AntProject ant = new AntProject();
+        
+        ant.task(mkdir).dir(docs).run();
+        ant.task(javadoc).destdir(docs).verbose(false)
+            .addFileset().dir(src).end()
+            .run();
+    }
+}
+```
 
 which is equivalent to
 
-	<project basedir="." default="build" name="ant">
-	    <property name="src" value="src/samples/java"/>
-	    <property name="docs" value="target/samples/docs"/>
-	
-	    <target name="build">
-	        <mkdir dir="${docs}"/>
-	        <javadoc destdir="${docs}" verbose="false">
-	            <fileset dir="${src}/>
-	        </javadoc>
-	    </target>
-	</project>
+```xml
+<project basedir="." default="build" name="ant">
+    <property name="src" value="src/samples/java"/>
+    <property name="docs" value="target/samples/docs"/>
+
+    <target name="build">
+        <mkdir dir="${docs}"/>
+        <javadoc destdir="${docs}" verbose="false">
+            <fileset dir="${src}/>
+        </javadoc>
+    </target>
+</project>
+```
