@@ -17,6 +17,7 @@ package org.copalis.antsy;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.util.function.Consumer;
 
 import org.apache.tools.ant.BuildEvent;
 import org.apache.tools.ant.BuildException;
@@ -24,6 +25,7 @@ import org.apache.tools.ant.BuildLogger;
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.DemuxInputStream;
 import org.apache.tools.ant.DemuxOutputStream;
+import org.apache.tools.ant.Location;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Target;
 import org.apache.tools.ant.Task;
@@ -118,14 +120,32 @@ public class AntProject {
         project.fireBuildFinished(new BuildException(cause));
     }
 
-    /**
-     * Creates a new instance of the specified Ant task facade
-     * @param <X> the facade type
-     * @param <Y> the inner Ant task type
-     * @param type the class object for X
-     * @return a new instance of X
-     */
-    public <X extends AntTask<Y>, Y extends Task> X task(Class<X> type) {
-        return AntTask.create(type, project);
+    public <X extends Task> X task(Class<X> type) {
+        try {
+            X task = type.getConstructor().newInstance();
+            task.setTaskName(type.getSimpleName().toLowerCase());
+            task.setProject(project);
+            if (task.getLocation() == Location.UNKNOWN_LOCATION) {
+                StackTraceElement elem = new Throwable().getStackTrace()[1]; // invoking method
+                task.setLocation(new Location(elem.getFileName(), elem.getLineNumber(), 0));
+            }
+            return task;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <X extends Task> X task(Class<X> type, Consumer<X> fn) {
+        try {
+            X task = task(type);
+            fn.accept(task);
+            return task;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <X extends Task> void run(Class<X> type, Consumer<X> fn) {
+        task(type, fn).execute();
     }
 }

@@ -32,14 +32,17 @@ public class JavadocExample implements Tasks {
         AntTarget target = ant.startTarget("javadoc");
 
         ant.startBuild();
-        ant.task(mkdir).dir(docs).run();
-        ant.task(javadoc)
-            .destdir(docs).verbose(false)
-            .withFileset()
-                .dir(src)
-                .includes("**/*.java")
-                .end()
-            .run();
+        ant.run(mkdir, t -> t.setDir(docs));
+        ant.run(javadoc, t -> {
+           t.setDestdir(docs);
+           t.setVerbose(false);
+        });
+//            .destdir(docs).verbose(false)
+//            .withFileset()
+//                .dir(src)
+//                .includes("**/*.java")
+//                .end()
+//            .run();
 
         target.finished();
         ant.buildFinished();

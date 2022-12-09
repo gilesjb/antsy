@@ -28,15 +28,15 @@ public class LocationExample implements Tasks {
         AntProject ant = new AntProject().startBuild();
 
         try {
-            ant.task(javac)
-                .inferLocation(true)
-                .run();
+            ant.startBuild();
+//            ant.task(javac).execute();
         } catch (RuntimeException e) {
             ant.buildFinished(e);
         }
 
         try {
-            ant.task(javac).run();
+            ant.startBuild();
+//            ant.task(javac).run();
         } catch (RuntimeException e) {
             ant.buildFinished(e);
         }

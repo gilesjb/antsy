@@ -29,7 +29,11 @@ public class EchoSample implements Tasks {
         AntProject ant = new AntProject().startBuild();
         AntTarget target = ant.startTarget("Main");
 
-        ant.task(echo).taskName("psst").message("Hello").addText(" World!").run();
+        ant.run(echo, t -> {
+            t.setTaskName("psst");
+            t.setMessage("Hello");
+            t.addText(" World!");
+        });
 
         target.finished();
         ant.buildFinished();
