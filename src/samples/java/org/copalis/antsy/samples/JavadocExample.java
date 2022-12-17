@@ -36,13 +36,11 @@ public class JavadocExample implements Tasks {
         ant.run(javadoc, t -> {
            t.setDestdir(docs);
            t.setVerbose(false);
+           t.fileset(fs -> {
+              fs.setDir(src);
+              fs.setIncludes("**/*.java");
+           });
         });
-//            .destdir(docs).verbose(false)
-//            .withFileset()
-//                .dir(src)
-//                .includes("**/*.java")
-//                .end()
-//            .run();
 
         target.finished();
         ant.buildFinished();

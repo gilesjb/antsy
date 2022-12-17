@@ -74,22 +74,19 @@ public class AntDoclet implements Doclet {
     private LinkedList<TypeElement> types = new LinkedList<TypeElement>();
     private HashSet<TypeElement> seen = new HashSet<TypeElement>();
 
-    boolean queueType(TypeElement elem) {
+    boolean queueValueType(TypeElement elem) {
         if (Objects.isNull(elem)) return false;
-        if (elem.getModifiers().contains(Modifier.ABSTRACT) || elem.getModifiers().contains(Modifier.FINAL)
-                || !isAntTask(elem) || !isConstructable(elem)
-                || elem.getEnclosingElement().getKind() != ElementKind.PACKAGE)
-            return false;
-        if (!elem.getQualifiedName().toString().startsWith(ORG_APACHE_TOOLS_ANT)) return false;
+        if (elem.getModifiers().contains(Modifier.FINAL)) return false;
+        if (!isConstructable(elem)) return false;
         if (deprecated(elem)) return false;
+        if (isAntTask(elem)) return false;
+        if (!elem.getQualifiedName().toString().startsWith(ORG_APACHE_TOOLS_ANT)) return false;
 
-
-        String name = elem.getQualifiedName().toString();
-        if (name.startsWith(ORG_APACHE_TOOLS_ANT) && !isAntTask(elem) && !seen.contains(elem)) {
+        if (!seen.contains(elem)) {
             types.add(elem);
             seen.add(elem);
         }
-        return false;
+        return true;
     }
 
     void code(String str) {
@@ -238,8 +235,11 @@ public class AntDoclet implements Doclet {
 
     void processMethods(String typeName, TypeElement task, Set<String> map) {
         for (Element el : task.getEnclosedElements()) {
-            if (!map.contains(el.toString()) && el.getKind() == ElementKind.METHOD && !deprecated(el)) {
-                processMethod(typeName, task, (ExecutableElement) el);
+            if (!map.contains(el.toString()) && el.getKind() == ElementKind.METHOD
+                    && !el.getModifiers().contains(Modifier.PRIVATE) && !deprecated(el)) {
+                for (Processor proc : Processor.values()) {
+                    if (proc.processMethod(this, typeName, (ExecutableElement) el)) break;
+                }
                 map.add(el.toString());
             }
         }
@@ -247,13 +247,6 @@ public class AntDoclet implements Doclet {
         if (task.getSuperclass() instanceof DeclaredType dt && dt.asElement() instanceof TypeElement te) {
             processMethods(typeName, te, map);
         }
-    }
-
-    void processMethod(String typeName, TypeElement task, ExecutableElement method) {
-        for (Processor proc : Processor.values()) {
-            if (proc.processMethod(this, typeName, method)) return;
-        }
-        code("// unhandled: " + method + " - " + method.getReturnType());
     }
 
     String refName(TypeElement type) {
@@ -331,7 +324,7 @@ public class AntDoclet implements Doclet {
         return method.getThrownTypes().isEmpty() ? "" : "} catch (Exception e) {throw new RuntimeException(e);}";
     }
 
-    static String matches(ExecutableElement method, String verb, String... prefixes) {
+    static String nameMatches(ExecutableElement method, String verb, String... prefixes) {
         String name = method.getSimpleName().toString();
         for (String prefix : prefixes) {
             if (name.startsWith(prefix) && name.length() >= prefix.length()) {
@@ -464,29 +457,29 @@ public class AntDoclet implements Doclet {
 //            }
 //        },
 
-//        /**
-//         * Matches <tt>public void addSomething(AntType a)</tt>
-//         */
-//        ADD_ANT {
-//            public boolean processMethod(AntDoclet doc, String container, ExecutableElement method) {
-//                String match = matches(method, "", "set", "add", "append");
-//                if (Objects.isNull(match)) return false;
-//
-//                List<? extends VariableElement> parameters = method.getParameters();
-//                TypeKind returnType = method.getReturnType().getKind();
-//                if (returnType != TypeKind.VOID || parameters.size() != 1) return false;
-//
-//                VariableElement param0 = parameters.get(0);
-//                TypeElement type0 = asTypeElement(param0.asType());
-//
-//                if (!doc.queueType(type0)) return false;
-//                doc.document(method);
-//                doc.format("public %s %s(java.util.function.Consumer<%s> fn) //ADD_ANT\n\t" +
-//                            "{%3$s obj = new %3$s(); fn.accept(obj); %2$s(obj); return this;}",
-//                        container, method.getSimpleName(), doc.refName(type0));
-//                return true;
-//            }
-//        },
+        /**
+         * Matches <tt>public void addSomething(AntType a)</tt>
+         */
+        ADD_ANT {
+            public boolean processMethod(AntDoclet doc, String container, ExecutableElement method) {
+                String match = nameMatches(method, "", "set", "add", "append");
+                if (Objects.isNull(match)) return false;
+
+                List<? extends VariableElement> parameters = method.getParameters();
+                TypeKind returnType = method.getReturnType().getKind();
+                if (returnType != TypeKind.VOID || parameters.size() != 1) return false;
+
+                VariableElement param0 = parameters.get(0);
+                TypeElement type0 = asTypeElement(param0.asType());
+
+                if (!doc.queueValueType(type0)) return false;
+                doc.document(method);
+                doc.format("public %s %s(java.util.function.Consumer<%s> fn) //ADD_ANT\n\t" +
+                            "{%3$s obj = new %3$s(); fn.accept(obj); %4$s%5$s(obj); %6$s return this;}",
+                        container, match, doc.refName(type0), tries(method), method.getSimpleName(), except(method));
+                return true;
+            }
+        },
 
 //        /**
 //         * Matches <tt>public void setSomething(primitiveType b)</tt>
